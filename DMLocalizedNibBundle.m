@@ -164,7 +164,12 @@
                     [self _localizeStringsInObject:[segmentedControl menuForSegment:segmentIndex] table:table];
                 }
                 
-            } else
+            } else if ([object isKindOfClass:[NSTableView class]]) {   // table and outline views
+				NSTableView *tableView = object;
+				NSArray *tableColumns = [tableView tableColumns];
+				[self _localizeStringsInObject:tableColumns table:table];
+			}
+			else
                 [self _localizeStringsInObject:[control cell] table:table];
 			
         }
@@ -177,6 +182,9 @@
         
         [self _localizeStringsInObject:[window contentView] table:table];
         
+    } else if ([object isKindOfClass:[NSTableColumn class]]) {
+		NSTableColumn *tableColumn = object;
+        [self _localizeTitleOfObject:[tableColumn headerCell] table:table];
     }
 }
 
