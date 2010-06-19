@@ -138,8 +138,8 @@
 						NSDictionary *displayPatternInfo = [textField infoForBinding:exposedBinding];
 						if (displayPatternInfo) {
 							// First get the unlocalized display pattern string from the bindings info and localize it
-							NSString *unlocalizedDisplayPattern = [[displayPatternInfo objectForKey:NSOptionsKey] objectForKey:NSDisplayPatternBindingOption];;
-							NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];;
+							NSString *unlocalizedDisplayPattern = [[displayPatternInfo objectForKey:NSOptionsKey] objectForKey:NSDisplayPatternBindingOption];
+							NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];
 
 							// To actually update the display pattern we need to re-create the bindings
 							NSMutableDictionary *newDisplayPatternInfo = [displayPatternInfo mutableCopy];
