@@ -127,9 +127,42 @@
         } else if ([view isKindOfClass:[NSControl class]]) {
             NSControl *control = (NSControl *)view;
 			
+			// Display patterns. These are a bit tricky to localize because they're buried in the text
+			// field bindings
+			if ([control isKindOfClass:[NSTextField class]]) {
+				NSTextField *textField = (NSTextField *)control;
+				
+				// There can be more than one display pattern bindings (displayPatternValue1, ...) so
+				// we search through all bindings exposed by the text field
+				NSArray *textFieldExposedBindings = [textField exposedBindings];
+				for (NSString *exposedBinding in textFieldExposedBindings) {
+					if ([exposedBinding hasPrefix:@"displayPatternValue"]) {
+						NSDictionary *displayPatternInfo = [textField infoForBinding:exposedBinding];
+						if (displayPatternInfo) {
+							// First get the localized display pattern string
+							NSString *unlocalizedDisplayPattern = [[displayPatternInfo objectForKey:NSOptionsKey] objectForKey:NSDisplayPatternBindingOption];;
+							NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];;
+							NSLog(@"old display pattern info: %@", displayPatternInfo);
+							
+							// Update the display pattern string
+							NSMutableDictionary *info = [displayPatternInfo mutableCopy];
+							[info setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
+							NSLog(@"new display pattern info: %@", info);
+							
+							// To localize the display pattern we need to recreate the binding
+							[textField unbind:exposedBinding];
+							[textField bind:exposedBinding
+								   toObject:[displayPatternInfo objectForKey:NSObservedObjectKey]
+								withKeyPath:[displayPatternInfo objectForKey:NSObservedKeyPathKey]
+									options:info];
+						}
+					}
+				}
+			}
+			
             if ([view isKindOfClass:[NSButton class]]) {
                 NSButton *button = (NSButton *)control;
-                
+				
                 if ([button isKindOfClass:[NSPopUpButton class]]) {
                     NSPopUpButton *popUpButton = (NSPopUpButton *)button;
                     NSMenu *menu = [popUpButton menu];
@@ -192,6 +225,8 @@
 {
     if (![string length])
         return nil;
+	
+	NSLog(@"will localize \"%@\" from table %@", string, table);   // DEBUG
     
     static NSString *defaultValue = @"I AM THE DEFAULT VALUE";
     NSString *localizedString = [[NSBundle mainBundle] localizedStringForKey:string value:defaultValue table:table];
