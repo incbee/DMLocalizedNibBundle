@@ -127,34 +127,25 @@
         } else if ([view isKindOfClass:[NSControl class]]) {
             NSControl *control = (NSControl *)view;
 			
-			// Display patterns. These are a bit tricky to localize because they're buried in the text
-			// field bindings
-			if ([control isKindOfClass:[NSTextField class]]) {
+			// Localize display patterns in text fields (non-trivial because they're only accessible via bindings)
+			if ([view isKindOfClass:[NSTextField class]]) {
 				NSTextField *textField = (NSTextField *)control;
 				
-				// There can be more than one display pattern bindings (displayPatternValue1, ...) so
-				// we search through all bindings exposed by the text field
+				// Iterate over bindings to catch all display pattern bindings (displayPatternValue1, ...)
 				NSArray *textFieldExposedBindings = [textField exposedBindings];
 				for (NSString *exposedBinding in textFieldExposedBindings) {
 					if ([exposedBinding hasPrefix:@"displayPatternValue"]) {
 						NSDictionary *displayPatternInfo = [textField infoForBinding:exposedBinding];
 						if (displayPatternInfo) {
-							// First get the localized display pattern string
+							// First get the unlocalized display pattern string from the bindings info and localize it
 							NSString *unlocalizedDisplayPattern = [[displayPatternInfo objectForKey:NSOptionsKey] objectForKey:NSDisplayPatternBindingOption];;
 							NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];;
-							NSLog(@"old display pattern info: %@", displayPatternInfo);
-							
-							// Update the display pattern string
-							NSMutableDictionary *info = [displayPatternInfo mutableCopy];
-							[info setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
-							NSLog(@"new display pattern info: %@", info);
-							
-							// To localize the display pattern we need to recreate the binding
+
+							// To actually update the display pattern we need to re-create the bindings
+							NSMutableDictionary *newDisplayPatternInfo = [displayPatternInfo mutableCopy];
+							[newDisplayPatternInfo setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
 							[textField unbind:exposedBinding];
-							[textField bind:exposedBinding
-								   toObject:[displayPatternInfo objectForKey:NSObservedObjectKey]
-								withKeyPath:[displayPatternInfo objectForKey:NSObservedKeyPathKey]
-									options:info];
+							[textField bind:exposedBinding toObject:[displayPatternInfo objectForKey:NSObservedObjectKey] withKeyPath:[displayPatternInfo objectForKey:NSObservedKeyPathKey] options:newDisplayPatternInfo];
 						}
 					}
 				}
@@ -226,8 +217,6 @@
     if (![string length])
         return nil;
 	
-	NSLog(@"will localize \"%@\" from table %@", string, table);   // DEBUG
-    
     static NSString *defaultValue = @"I AM THE DEFAULT VALUE";
     NSString *localizedString = [[NSBundle mainBundle] localizedStringForKey:string value:defaultValue table:table];
     if (localizedString != defaultValue) {
