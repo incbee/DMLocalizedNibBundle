@@ -131,8 +131,10 @@
 			if ([view isKindOfClass:[NSTextField class]]) {
 				NSTextField *textField = (NSTextField *)control;
 				
-				// Iterate over bindings to catch all display pattern bindings (displayPatternValue1, ...)
-				NSArray *textFieldExposedBindings = [textField exposedBindings];
+				// A text field can have more than one display pattern binding (displayPatternValue1, ...) so we localize each one
+				//
+				//! \todo according to the Apple docs we can apply to one and the change will be rippled through, so only apply to first one
+				NSArray *textFieldExposedBindings = [[textField exposedBindings] sortedArrayUsingSelector:@selector(localizedCompare:)];
 				for (NSString *exposedBinding in textFieldExposedBindings) {
 					if ([exposedBinding hasPrefix:@"displayPatternValue"]) {
 						NSDictionary *displayPatternInfo = [textField infoForBinding:exposedBinding];
@@ -142,10 +144,9 @@
 							NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];
 
 							// To actually update the display pattern we need to re-create the bindings
-							NSMutableDictionary *newDisplayPatternInfo = [displayPatternInfo mutableCopy];
-							[newDisplayPatternInfo setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
-							[textField unbind:exposedBinding];
-							[textField bind:exposedBinding toObject:[displayPatternInfo objectForKey:NSObservedObjectKey] withKeyPath:[displayPatternInfo objectForKey:NSObservedKeyPathKey] options:newDisplayPatternInfo];
+							NSMutableDictionary *localizedOptions = [[displayPatternInfo objectForKey:NSOptionsKey] mutableCopy];
+							[localizedOptions setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
+							[textField bind:exposedBinding toObject:[displayPatternInfo objectForKey:NSObservedObjectKey] withKeyPath:[displayPatternInfo objectForKey:NSObservedKeyPathKey] options:localizedOptions];
 						}
 					}
 				}
