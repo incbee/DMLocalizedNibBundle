@@ -1,4 +1,18 @@
 #!/bin/zsh
+#
+# By default this script will look for the xibLocalizationPostprocessor tool
+# in the build product folder, as set by Xcode in the $BUILT_PRODUCTS_DIR
+# environment variable.
+#
+# This script takes an optional argument that lets you override this default.
+
+# See if the user provided a path to the XIB localization post processor script
+# otherwise fall back on the build directory
+if (( ${+1} )); then
+  XIB_PROCESSOR_PATH=$1
+else
+  XIB_PROCESSOR_PATH=${BUILT_PRODUCTS_DIR}/xibLocalizationPostprocessor
+fi
 
 # Internationalize source code
 # -q silences duplicate comments with same key warning
@@ -11,7 +25,7 @@ foreach nibFile (${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/**/*.n
  xibFilePath=`echo ${SOURCE_ROOT}/**/${xibFile}`
  if [[ -e ${xibFilePath} ]] {
   ibtool --generate-stringsfile ${stringsFilePath}~ ${xibFilePath}
-  ${BUILT_PRODUCTS_DIR}/xibLocalizationPostprocessor ${stringsFilePath}~ ${stringsFilePath}
+  "${XIB_PROCESSOR_PATH}" ${stringsFilePath}~ ${stringsFilePath}
   rm ${stringsFilePath}~
  }
 end
