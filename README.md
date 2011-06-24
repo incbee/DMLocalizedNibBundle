@@ -18,6 +18,13 @@ First create a target for the command-line tool that will slurp out the localiza
 7. Under Add To Targets list select only xibLocalizationPostprocessor and deselect all others
 
 
+Next set the above command-line tool to be compiled with the application:
+
+1. In the Groups & Files pane double-click your application target
+2. Under the Direct Dependencies list click +
+3. Select xibLocalizationPostprocessor and click Add Target
+
+
 Then add a build script that will call the above command-line tool:
 
 1. In the Groups & Files pane select your application target
