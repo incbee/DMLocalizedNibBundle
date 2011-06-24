@@ -5,6 +5,18 @@
 - columns in `NSTableView` and `NSOutlineView`
 - display patterns (`%{value1}`, `%{value2}`, ...) in `NSTextField` strings
 
+## How to use
+
+First create a target for the command-line tool that will slurp out the localizable strings from source files and XIB files:
+
+1. In Xcode choose Project > New Target
+2. On the left select "Cocoa" under the Mac OS X heading
+3. On the right select Shell Tool and click Next
+4. For the Target Name enter "xibLocalizationPostprocessor" and click Finish
+5. Choose Project > Add to Project
+6. In the file browser choose the xibLocalizationPostprocessor.m file and click Add
+7. Under Add To Targets list select only xibLocalizationPostprocessor and deselect all others
+
 
 ## License
 
