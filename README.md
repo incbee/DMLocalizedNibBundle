@@ -7,6 +7,8 @@
 
 ## How to use
 
+**Important**: These instructions are for Xcode 3
+
 First create a target for the command-line tool that will slurp out the localizable strings from source files and XIB files:
 
 1. In Xcode choose Project > New Target
