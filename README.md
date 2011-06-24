@@ -18,6 +18,21 @@ First create a target for the command-line tool that will slurp out the localiza
 7. Under Add To Targets list select only xibLocalizationPostprocessor and deselect all others
 
 
+Then add a build script that will call the above command-line tool:
+
+1. In the Groups & Files pane select your application target
+2. Choose Project > New Build Phase > New Run Script Build Phase
+3. In the Script text view enter
+
+	`/path/to/slurpLocalizableStrings.zsh`
+	
+	For example if you have the localization project as a subfolder in the Xcode project folder:
+
+	`${SRCROOT}/DMLocalizedNibBundle/slurpLocalizableStrings.zsh`
+4. Close the script info window
+5. Ctrl-Click on the newly create build script phase (it should be called "Run Script") and choose Rename
+6. Type "Generate Localizable Strings" and hit enter
+
 ## License
 
 Created by William Jon Shipley on 2/13/05. Copyright © 2005-2009 Golden % Braeburn, LLC. All rights reserved except as below:
