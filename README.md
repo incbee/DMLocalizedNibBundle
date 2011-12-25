@@ -2,6 +2,7 @@
 
 `DMLocalizedNibBundle` is [Wil Shipley's localization system](http://wilshipley.com/blog/2009/10/pimp-my-code-part-17-lost-in.html) with improvements to support localization of:
 
+- all `NSTabView` items and their labels
 - columns in `NSTableView` and `NSOutlineView`
 - display patterns (`%{value1}`, `%{value2}`, ...) in `NSTextField` strings
 
