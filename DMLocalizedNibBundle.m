@@ -22,6 +22,7 @@
 + (void)_localizeStringValueOfObject:(id)object table:(NSString *)table;
 + (void)_localizePlaceholderStringOfObject:(id)object table:(NSString *)table;
 + (void)_localizeToolTipOfObject:(id)object table:(NSString *)table;
++ (void)_localizeLabelOfObject:(id)object table:(NSString *)table;
 @end
 
 
@@ -193,7 +194,10 @@
 			else
                 [self _localizeStringsInObject:[control cell] table:table];
 			
-        }
+        } else if ([object isKindOfClass:[NSTabView class]]) {
+			NSTabView *tabView = object;
+			[self _localizeStringsInObject:[tabView tabViewItems] table:table];
+		}
         
         [self _localizeStringsInObject:[view subviews] table:table];
         
@@ -203,6 +207,10 @@
         
         [self _localizeStringsInObject:[window contentView] table:table];
         
+    } else if ([object isKindOfClass:[NSTabViewItem class]]) {
+		NSTabViewItem *tabViewItem = object;
+		[self _localizeLabelOfObject:object table:table];
+        [self _localizeStringsInObject:[tabViewItem view] table:table];
     } else if ([object isKindOfClass:[NSTableColumn class]]) {
 		NSTableColumn *tableColumn = object;
         [self _localizeTitleOfObject:[tableColumn headerCell] table:table];
@@ -242,5 +250,6 @@ DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(alternateTitle, AlternateTitle)
 DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(stringValue, StringValue)
 DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(placeholderString, PlaceholderString)
 DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(toolTip, ToolTip)
+DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(label, Label)
 
 @end
