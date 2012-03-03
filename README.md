@@ -10,6 +10,8 @@
 
 **Important**: These instructions are for Xcode 3
 
+### Create target for localizable strings extractor
+
 First create a target for the command-line tool that will slurp out the localizable strings from source files and XIB files:
 
 1. In Xcode choose Project > New Target
@@ -21,12 +23,16 @@ First create a target for the command-line tool that will slurp out the localiza
 7. Under Add To Targets list select only xibLocalizationPostprocessor and deselect all others
 
 
+### Set target dependency
+
 Next set the above command-line tool to be compiled with the application:
 
 1. In the Groups & Files pane double-click your application target
 2. Under the Direct Dependencies list click +
 3. Select xibLocalizationPostprocessor and click Add Target
 
+
+### Add build script phase to extract localizable strings
 
 Then add a build script that will call the above command-line tool:
 
@@ -43,6 +49,8 @@ Then add a build script that will call the above command-line tool:
 5. Ctrl-Click on the newly create build script phase (it should be called "Run Script") and choose Rename
 6. Type "Generate Localizable Strings" and hit enter
 
+
+### Load localizations dynamically in application
 
 And finally add the dynamic localization loader into your application target:
 
