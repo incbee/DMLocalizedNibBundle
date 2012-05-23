@@ -91,7 +91,16 @@
                     [self _localizeStringValueOfObject:buttonCell table:table];
                     [self _localizeAlternateTitleOfObject:buttonCell table:table];
                 }
-                
+            } else if ([actionCell isKindOfClass:[NSTokenFieldCell class]]) {
+                // Don't localize the string value of token fields because
+                // calling the setStringValue method because this causes custom
+                // (= non-strings) token objects to be converted to strings.
+                // You can see this because suddenly NSTokenFieldDelegate's
+                // tokenField:representedObjectForEditingString: when launching
+                // the app in a localized language, but not called for the
+                // English version.
+                NSTokenFieldCell *tokenFieldCell = (NSTokenFieldCell *)actionCell;
+                [self _localizePlaceholderStringOfObject:tokenFieldCell table:table];
             } else if ([actionCell isKindOfClass:[NSTextFieldCell class]]) {
                 NSTextFieldCell *textFieldCell = (NSTextFieldCell *)actionCell;
                 // Following line is redundant with other code, localizes twice.
