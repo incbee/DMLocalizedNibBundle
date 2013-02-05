@@ -14,9 +14,11 @@ else
   XIB_PROCESSOR_PATH=${BUILT_PRODUCTS_DIR}/xibLocalizationPostprocessor
 fi
 
-# Internationalize source code
+# Internationalize source code -- piped through xargs to support a large number
+# of input files
+OUTPUT_FOLDER="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/${DEVELOPMENT_LANGUAGE}.lproj"
 # -q silences duplicate comments with same key warning
-genstrings -q -o ${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/${DEVELOPMENT_LANGUAGE}.lproj ${SRCROOT}/**/*.[hm]
+find ${SRCROOT} -name "*.[hm]" -print0 | xargs -0 genstrings -q -a -o "${OUTPUT_FOLDER}" 
 
 # Internationalize XIBs
 foreach nibFile (${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/**/*.nib)
