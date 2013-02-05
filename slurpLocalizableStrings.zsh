@@ -28,7 +28,7 @@ fi
 # of input files
 OUTPUT_FOLDER="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/${DEVELOPMENT_LANGUAGE}.lproj"
 # -q silences duplicate comments with same key warning
-find "$@" -name "*.[hm]" -print0 | xargs -0 genstrings -q -a -o "${OUTPUT_FOLDER}" 
+find "$@" -name "*.[hm]" -print0 | xargs -0 genstrings -q -o "${OUTPUT_FOLDER}" 
 
 # Internationalize XIBs
 foreach nibFile (${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/**/*.nib)
