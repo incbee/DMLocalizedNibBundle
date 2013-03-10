@@ -34,7 +34,7 @@ find "$@" -name "*.[hm]" -print0 | xargs -0 genstrings -q -o "${OUTPUT_FOLDER}"
 foreach nibFile (${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/**/*.nib)
  stringsFilePath=${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/${DEVELOPMENT_LANGUAGE}.lproj/`basename ${nibFile} .nib`.strings
  xibFile=`basename ${nibFile} .nib`.xib
- xibFilePath=`print -l ${SOURCE_ROOT}/**/${xibFile} | head -n 1`
+ xibFilePath=`find "${SOURCE_ROOT}" -name "${xibFile}" | head -n 1`
  if [[ -e ${xibFilePath} ]] {
   ibtool --generate-stringsfile ${stringsFilePath}~ ${xibFilePath}
   "${XIB_PROCESSOR_PATH}" ${stringsFilePath}~ ${stringsFilePath}
