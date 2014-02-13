@@ -8,9 +8,8 @@
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
 
-
 @interface NSBundle (DMLocalizedNibBundle)
-- (BOOL)deliciousLocalizingLoadNibFile:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects;
+- (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects;
 + (BOOL)deliciousLocalizingLoadNibFile:(NSString *)fileName externalNameTable:(NSDictionary *)context withZone:(NSZone *)zone;
 @end
 
@@ -30,26 +29,24 @@
 @implementation NSBundle (DMLocalizedNibBundle)
 
 #pragma mark NSObject
-
+Method old, new;
 + (void)load;
 {
     NSAutoreleasePool *autoreleasePool = [[NSAutoreleasePool alloc] init];
     if (self == [NSBundle class]) {
+        old = class_getInstanceMethod(self, @selector(loadNibNamed:owner:topLevelObjects:));
+        new = class_getInstanceMethod(self, @selector(deliciousLocalizingLoadNibNamed:owner:topLevelObjects:));
+        method_exchangeImplementations(old, new);
         method_exchangeImplementations(class_getClassMethod(self, @selector(loadNibFile:externalNameTable:withZone:)), class_getClassMethod(self, @selector(deliciousLocalizingLoadNibFile:externalNameTable:withZone:)));
-        method_exchangeImplementations(class_getInstanceMethod(self, @selector(loadNibNamed:owner:topLevelObjects:)), class_getInstanceMethod(self, @selector(loadNibNamed:owner:topLevelObjects:)));
     }
     [autoreleasePool release];
-}
-
--(BOOL) loadNibNamed:(NSString *)nibName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects{
-    return NO;
 }
 
 
 #pragma mark API
 
 - (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects {
-    NSLog(@"%@", fileName);
+    fileName = [self pathForResource:fileName ofType:@"nib"];
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
@@ -69,7 +66,10 @@
         return success;
         
     } else {
-        return [self deliciousLocalizingLoadNibFile:fileName owner:owner topLevelObjects:topLevelObjects];
+        method_exchangeImplementations(new, old);
+        BOOL success = [self loadNibNamed:localizedStringsTableName owner:owner topLevelObjects:topLevelObjects];
+        method_exchangeImplementations(old, new);
+        return success;
     }
 }
 
