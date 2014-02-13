@@ -7,22 +7,35 @@
 
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h>
+#import <Availability.h>
 
 @interface NSBundle (DMLocalizedNibBundle)
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
 - (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects;
+#else
 + (BOOL)deliciousLocalizingLoadNibFile:(NSString *)fileName externalNameTable:(NSDictionary *)context withZone:(NSZone *)zone;
+#endif
 @end
 
 @interface NSBundle (DMLocalizedNibBundle_Private)
 - (void)_localizeStringsInObject:(id)object table:(NSString *)table;
 - (NSString *)_localizedStringForString:(NSString *)string table:(NSString *)table;
 // localize particular attributes in objects
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
 - (void)_localizeTitleOfObject:(id)object table:(NSString *)table;
 - (void)_localizeAlternateTitleOfObject:(id)object table:(NSString *)table;
 - (void)_localizeStringValueOfObject:(id)object table:(NSString *)table;
 - (void)_localizePlaceholderStringOfObject:(id)object table:(NSString *)table;
 - (void)_localizeToolTipOfObject:(id)object table:(NSString *)table;
 - (void)_localizeLabelOfObject:(id)object table:(NSString *)table;
+#else
++ (void)_localizeTitleOfObject:(id)object table:(NSString *)table;
++ (void)_localizeAlternateTitleOfObject:(id)object table:(NSString *)table;
++ (void)_localizeStringValueOfObject:(id)object table:(NSString *)table;
++ (void)_localizePlaceholderStringOfObject:(id)object table:(NSString *)table;
++ (void)_localizeToolTipOfObject:(id)object table:(NSString *)table;
++ (void)_localizeLabelOfObject:(id)object table:(NSString *)table;
+#endif
 @end
 
 
@@ -34,10 +47,13 @@ Method old, new;
 {
     NSAutoreleasePool *autoreleasePool = [[NSAutoreleasePool alloc] init];
     if (self == [NSBundle class]) {
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
         old = class_getInstanceMethod(self, @selector(loadNibNamed:owner:topLevelObjects:));
         new = class_getInstanceMethod(self, @selector(deliciousLocalizingLoadNibNamed:owner:topLevelObjects:));
         method_exchangeImplementations(old, new);
+#else
         method_exchangeImplementations(class_getClassMethod(self, @selector(loadNibFile:externalNameTable:withZone:)), class_getClassMethod(self, @selector(deliciousLocalizingLoadNibFile:externalNameTable:withZone:)));
+#endif
     }
     [autoreleasePool release];
 }
@@ -45,23 +61,16 @@ Method old, new;
 
 #pragma mark API
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
 - (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects {
     fileName = [self pathForResource:fileName ofType:@"nib"];
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
-        
         NSNib *nib = [[NSNib alloc] initWithContentsOfURL:[NSURL fileURLWithPath:fileName]];
-/*        if (!topLevelObjectsArray) {
-            topLevelObjectsArray = [NSMutableArray array];
-            context = [NSMutableDictionary dictionaryWithDictionary:context];
-            [(NSMutableDictionary *)context setObject:topLevelObjectsArray forKey:NSNibTopLevelObjects];
-        }*/
         BOOL success = [nib instantiateWithOwner:owner topLevelObjects:topLevelObjects];
         NSMutableArray *topLevelObjectsArray = [NSMutableArray arrayWithArray:*topLevelObjects];
         [self _localizeStringsInObject:topLevelObjectsArray table:localizedStringsTableName];
-        
-        
         [nib release];
         return success;
         
@@ -72,7 +81,10 @@ Method old, new;
         return success;
     }
 }
+#endif
 
+
+#if __MAC_OS_X_VERSION_MIN_REQUIRED <= __MAC_10_7
 + (BOOL)deliciousLocalizingLoadNibFile:(NSString *)fileName externalNameTable:(NSDictionary *)context withZone:(NSZone *)zone;
 {
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
@@ -96,12 +108,18 @@ Method old, new;
         return [self deliciousLocalizingLoadNibFile:fileName externalNameTable:context withZone:zone];
     }
 }
+#endif
 
 
 
 #pragma mark Private API
 
-- (void)_localizeStringsInObject:(id)object table:(NSString *)table;
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
+-
+#else
++
+#endif
+(void)_localizeStringsInObject:(id)object table:(NSString *)table;
 {
     if ([object isKindOfClass:[NSArray class]]) {
         NSArray *array = object;
@@ -257,7 +275,12 @@ Method old, new;
     }
 }
 
-- (NSString *)_localizedStringForString:(NSString *)string table:(NSString *)table;
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
+-
+#else
++
+#endif
+(NSString *)_localizedStringForString:(NSString *)string table:(NSString *)table;
 {
     if (![string length])
         return nil;
@@ -276,6 +299,7 @@ Method old, new;
     }
 }
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > __MAC_10_7
 
 #define DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(blahName, capitalizedBlahName) \
 - (void)_localize ##capitalizedBlahName ##OfObject:(id)object table:(NSString *)table; \
@@ -284,6 +308,18 @@ NSString *localizedBlah = [self _localizedStringForString:[object blahName] tabl
 if (localizedBlah) \
 [object set ##capitalizedBlahName:localizedBlah]; \
 }
+
+#else
+
+#define DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(blahName, capitalizedBlahName) \
++ (void)_localize ##capitalizedBlahName ##OfObject:(id)object table:(NSString *)table; \
+{ \
+NSString *localizedBlah = [self _localizedStringForString:[object blahName] table:table]; \
+if (localizedBlah) \
+[object set ##capitalizedBlahName:localizedBlah]; \
+}
+
+#endif
 
 DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(title, Title)
 DM_DEFINE_LOCALIZE_BLAH_OF_OBJECT(alternateTitle, AlternateTitle)
