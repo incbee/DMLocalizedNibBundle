@@ -65,6 +65,14 @@ Method old, new;
 - (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects {
     fileName = [self pathForResource:fileName ofType:@"nib"];
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
+    // TODO: The call below assumes that all strings file reside in the main
+    // app bundle. But for frameworks this means that the app needs to compile
+    // the framework's strings.
+    //
+    // Updating the call below is not the real issue -- it could be easily
+    // changed to [self pathForResource:...]. The trickier problem lies with
+    // the slurpLocalizableStrings script, which places all generated strings
+    // file in the app's resources folder.
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
         // TODO: Simplify loading by using loadNibNamed:owner:topLevelObjects
