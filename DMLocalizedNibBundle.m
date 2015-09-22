@@ -67,6 +67,12 @@ Method old, new;
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
+        // TODO: Simplify loading by using loadNibNamed:owner:topLevelObjects
+        // available on self. This combines the NIB initialisation,
+        // instantiation and releasing into a single method call.
+        //
+        // Since this method is only available in 10.8 and later, we can only
+        // apply this change when we ditch 10.7 compatibility.
         NSNib *nib = [[NSNib alloc] initWithNibNamed:[fileName lastPathComponent] bundle:self];
         BOOL success = [nib instantiateWithOwner:owner topLevelObjects:topLevelObjects];
         NSMutableArray *topLevelObjectsArray = [NSMutableArray arrayWithArray:*topLevelObjects];
