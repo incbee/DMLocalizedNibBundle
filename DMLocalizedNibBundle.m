@@ -67,7 +67,7 @@ Method old, new;
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
-        NSNib *nib = [[NSNib alloc] initWithContentsOfURL:[NSURL fileURLWithPath:fileName]];
+        NSNib *nib = [[NSNib alloc] initWithNibNamed:[fileName lastPathComponent] bundle:self];
         BOOL success = [nib instantiateWithOwner:owner topLevelObjects:topLevelObjects];
         NSMutableArray *topLevelObjectsArray = [NSMutableArray arrayWithArray:*topLevelObjects];
         [self _localizeStringsInObject:topLevelObjectsArray table:localizedStringsTableName];
