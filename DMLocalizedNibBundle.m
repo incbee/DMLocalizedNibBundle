@@ -73,7 +73,7 @@ Method old, new;
         [self _localizeStringsInObject:topLevelObjectsArray table:localizedStringsTableName];
         [nib release];
         return success;
-        
+
     } else {
         method_exchangeImplementations(new, old);
         BOOL success = [self loadNibNamed:localizedStringsTableName owner:owner topLevelObjects:topLevelObjects];
@@ -90,7 +90,7 @@ Method old, new;
     NSString *localizedStringsTableName = [[fileName lastPathComponent] stringByDeletingPathExtension];
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
     if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
-        
+
         NSNib *nib = [[NSNib alloc] initWithContentsOfURL:[NSURL fileURLWithPath:fileName]];
         NSMutableArray *topLevelObjectsArray = [context objectForKey:NSNibTopLevelObjects];
         if (!topLevelObjectsArray) {
@@ -100,10 +100,10 @@ Method old, new;
         }
         BOOL success = [nib instantiateNibWithExternalNameTable:context];
         [self _localizeStringsInObject:topLevelObjectsArray table:localizedStringsTableName];
-        
+
         [nib release];
         return success;
-        
+
     } else {
         return [self deliciousLocalizingLoadNibFile:fileName externalNameTable:context withZone:zone];
     }
@@ -123,16 +123,16 @@ Method old, new;
 {
     if ([object isKindOfClass:[NSArray class]]) {
         NSArray *array = object;
-        
+
         for (id nibItem in array)
             [self _localizeStringsInObject:nibItem table:table];
-		
+
     } else if ([object isKindOfClass:[NSCell class]]) {
         NSCell *cell = object;
-        
+
         if ([cell isKindOfClass:[NSActionCell class]]) {
             NSActionCell *actionCell = (NSActionCell *)cell;
-            
+
             if ([actionCell isKindOfClass:[NSButtonCell class]]) {
                 NSButtonCell *buttonCell = (NSButtonCell *)actionCell;
                 if ([buttonCell imagePosition] != NSImageOnly) {
@@ -156,40 +156,40 @@ Method old, new;
                 // [self _localizeTitleOfObject:textFieldCell table:table];
                 [self _localizeStringValueOfObject:textFieldCell table:table];
                 [self _localizePlaceholderStringOfObject:textFieldCell table:table];
-				
+
             } else if ([actionCell type] == NSTextCellType) {
                 [self _localizeTitleOfObject:actionCell table:table];
                 [self _localizeStringValueOfObject:actionCell table:table];
             }
         }
-        
+
     } else if ([object isKindOfClass:[NSMenu class]]) {
         NSMenu *menu = object;
         [self _localizeTitleOfObject:menu table:table];
-        
+
         [self _localizeStringsInObject:[menu itemArray] table:table];
-        
+
     } else if ([object isKindOfClass:[NSMenuItem class]]) {
         NSMenuItem *menuItem = object;
         [self _localizeTitleOfObject:menuItem table:table];
-        
+
         [self _localizeStringsInObject:[menuItem submenu] table:table];
-        
+
     } else if ([object isKindOfClass:[NSView class]]) {
         NSView *view = object;
         [self _localizeToolTipOfObject:view table:table];
-		
+
         if ([view isKindOfClass:[NSBox class]]) {
             NSBox *box = (NSBox *)view;
             [self _localizeTitleOfObject:box table:table];
-            
+
         } else if ([view isKindOfClass:[NSControl class]]) {
             NSControl *control = (NSControl *)view;
-			
+
 			// Localize display patterns in text fields (non-trivial because they're only accessible via bindings)
 			if ([view isKindOfClass:[NSTextField class]]) {
 				NSTextField *textField = (NSTextField *)control;
-				
+
 				// A text field can have more than one display pattern binding (displayPatternValue1, ...) but according to the Apple
 				// docs its sufficient to change the first one and the change will be rippled through to the other ones
 				if ([[textField exposedBindings] containsObject:@"displayPatternValue1"]) {
@@ -198,7 +198,7 @@ Method old, new;
 						// First get the unlocalized display pattern string from the bindings info and localize it
 						NSString *unlocalizedDisplayPattern = [[displayPatternInfo objectForKey:NSOptionsKey] objectForKey:NSDisplayPatternBindingOption];
 						NSString *localizedDisplayPattern = [[NSBundle mainBundle] localizedStringForKey:unlocalizedDisplayPattern value:unlocalizedDisplayPattern table:table];
-						
+
 						// To actually update the display pattern we need to re-create the bindings
 						NSMutableDictionary *localizedOptions = [[displayPatternInfo objectForKey:NSOptionsKey] mutableCopy];
 						[localizedOptions setObject:localizedDisplayPattern forKey:NSDisplayPatternBindingOption];
@@ -206,44 +206,44 @@ Method old, new;
 					}
 				}
 			}
-			
+
             if ([view isKindOfClass:[NSButton class]]) {
                 NSButton *button = (NSButton *)control;
-				
+
                 if ([button isKindOfClass:[NSPopUpButton class]]) {
                     NSPopUpButton *popUpButton = (NSPopUpButton *)button;
                     NSMenu *menu = [popUpButton menu];
-                    
+
                     [self _localizeStringsInObject:[menu itemArray] table:table];
                 } else
                     [self _localizeStringsInObject:[button cell] table:table];
-				
-                
+
+
             } else if ([view isKindOfClass:[NSMatrix class]]) {
                 NSMatrix *matrix = (NSMatrix *)control;
-                
+
                 NSArray *cells = [matrix cells];
                 [self _localizeStringsInObject:cells table:table];
-                
+
                 for (NSCell *cell in cells) {
-                    
+
                     NSString *localizedCellToolTip = [self _localizedStringForString:[matrix toolTipForCell:cell] table:table];
                     if (localizedCellToolTip)
                         [matrix setToolTip:localizedCellToolTip forCell:cell];
                 }
-                
+
             } else if ([view isKindOfClass:[NSSegmentedControl class]]) {
                 NSSegmentedControl *segmentedControl = (NSSegmentedControl *)control;
-                
+
                 NSUInteger segmentIndex, segmentCount = [segmentedControl segmentCount];
                 for (segmentIndex = 0; segmentIndex < segmentCount; segmentIndex++) {
                     NSString *localizedSegmentLabel = [self _localizedStringForString:[segmentedControl labelForSegment:segmentIndex] table:table];
                     if (localizedSegmentLabel)
                         [segmentedControl setLabel:localizedSegmentLabel forSegment:segmentIndex];
-                    
+
                     [self _localizeStringsInObject:[segmentedControl menuForSegment:segmentIndex] table:table];
                 }
-                
+
             } else if ([object isKindOfClass:[NSTableView class]]) {   // table and outline views
 				NSTableView *tableView = object;
 				NSArray *tableColumns = [tableView tableColumns];
@@ -251,20 +251,20 @@ Method old, new;
 			}
 			else
                 [self _localizeStringsInObject:[control cell] table:table];
-			
+
         } else if ([object isKindOfClass:[NSTabView class]]) {
 			NSTabView *tabView = object;
 			[self _localizeStringsInObject:[tabView tabViewItems] table:table];
 		}
-        
+
         [self _localizeStringsInObject:[view subviews] table:table];
-        
+
     } else if ([object isKindOfClass:[NSWindow class]]) {
         NSWindow *window = object;
         [self _localizeTitleOfObject:window table:table];
-        
+
         [self _localizeStringsInObject:[window contentView] table:table];
-        
+
     } else if ([object isKindOfClass:[NSTabViewItem class]]) {
 		NSTabViewItem *tabViewItem = object;
 		[self _localizeLabelOfObject:object table:table];
@@ -284,12 +284,12 @@ Method old, new;
 {
     if (![string length])
         return nil;
-	
+
     static NSString *defaultValue = @"I AM THE DEFAULT VALUE";
     NSString *localizedString = [[NSBundle mainBundle] localizedStringForKey:string value:defaultValue table:table];
     if (localizedString != defaultValue) {
         return localizedString;
-    } else { 
+    } else {
 #ifdef BETA_BUILD
         NSLog(@"        not going to localize string %@", string);
         return string; // [string uppercaseString]
