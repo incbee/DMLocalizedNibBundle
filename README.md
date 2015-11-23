@@ -8,6 +8,16 @@ with improvements to support localization of:
 - columns in `NSTableView` and `NSOutlineView`
 - display patterns (`%{value1}`, `%{value2}`, ...) in `NSTextField` strings
 
+
+## System requirements
+
+I've tested the code on the Mac OS X 10.10 SDK.
+
+It should run fine on the 10.8 SDK too, though I haven't tested this.
+
+If you need 10.7 compatibility checkout the tag `10.7-compatibility`.
+
+
 ## How to use
 
 ### Xcode 4
