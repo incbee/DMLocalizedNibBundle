@@ -20,11 +20,9 @@ If you need 10.7 compatibility checkout the tag `10.7-compatibility`.
 
 ## How to use
 
-### Xcode 4
+Note that the following instructions are for Xcode 4.3.
 
-Note that these are instructions for Xcode 4.3.
-
-#### Create target for localizable strings extractor
+### Create target for localizable strings extractor
 
 First create a target for the command-line tool that will slurp out the localizable strings from source files and XIB files:
 
@@ -41,7 +39,7 @@ First create a target for the command-line tool that will slurp out the localiza
 5. Drag "xibLocalizationPostprocessor.m" into your project
 6. Under Add To Targets list select only xibLocalizationPostprocessor and deselect all others
 
-#### Target build settings
+### Target build settings
 
 1. In the Project Navigator select your project
 2. From the Targets select "xibLocalizationPostprocessor"
@@ -50,7 +48,7 @@ First create a target for the command-line tool that will slurp out the localiza
 
 The "xibLocalizationPostprocessor" target should now compile.
 
-#### Set target dependency
+### Set target dependency
 
 Next set the above command-line tool to be compiled with the application:
 
@@ -60,7 +58,7 @@ Next set the above command-line tool to be compiled with the application:
 4. Under Target Dependencies click "+"
 3. Select xibLocalizationPostprocessor and click Add Target
 
-#### Add build script phase to extract localizable strings
+### Add build script phase to extract localizable strings
 
 Then add a build script that will call the above command-line tool:
 
@@ -77,7 +75,7 @@ Then add a build script that will call the above command-line tool:
 	`${SRCROOT}/DMLocalizedNibBundle/slurpLocalizableStrings.zsh`
 6. Rename the build script phase "Generate Localizable Strings" or something to your liking
 
-#### Load localizations dynamically in application
+### Load localizations dynamically in application
 
 And finally add the dynamic localization loader into your application target:
 
