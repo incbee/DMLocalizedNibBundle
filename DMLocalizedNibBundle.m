@@ -10,6 +10,7 @@
 
 @interface NSBundle (DMLocalizedNibBundle)
 - (BOOL)deliciousLocalizingLoadNibNamed:(NSString *)fileName owner:(id)owner topLevelObjects:(NSArray **)topLevelObjects;
+- (NSString *)deliciousDevelopmentLanguageFolder;
 @end
 
 @interface NSBundle (DMLocalizedNibBundle_Private)
@@ -55,7 +56,10 @@ Method old, new;
     // the slurpLocalizableStrings script, which places all generated strings
     // file in the app's resources folder.
     NSString *localizedStringsTablePath = [[NSBundle mainBundle] pathForResource:localizedStringsTableName ofType:@"strings"];
-    if (localizedStringsTablePath && ![[[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"English.lproj"]) {
+    NSString *localizedStringsFolderName = [[localizedStringsTablePath stringByDeletingLastPathComponent] lastPathComponent];
+    NSString *developmentLanguageFolderName = [self deliciousDevelopmentLanguageFolder];
+    BOOL shouldLocalizeNib = (localizedStringsTablePath && ![localizedStringsFolderName isEqualToString:developmentLanguageFolderName]);
+    if (shouldLocalizeNib) {
         // TODO: Simplify loading by using loadNibNamed:owner:topLevelObjects
         // available on self. This combines the NIB initialisation,
         // instantiation and releasing into a single method call.
@@ -77,6 +81,10 @@ Method old, new;
     }
 }
 
+- (NSString *)deliciousDevelopmentLanguageFolder {
+  NSString *developmentLanguage = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleDevelopmentRegionKey];
+  return [developmentLanguage stringByAppendingPathExtension:@"lproj"];
+}
 
 #pragma mark Private API
 
